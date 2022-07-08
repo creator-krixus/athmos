@@ -1,17 +1,19 @@
 <template>
     <div class="adminTask">
-        <h1 class="adminTask__title">Crear tarea</h1>
-        <form class="adminTask__form" @submit.prevent="saveTask">
-            <input class="adminTask__form--input" type="text" v-model="task.title" placeholder="Titulo de la tarea">
-            <input class="adminTask__form--input" type="text" v-model="task.description"
+        <h1 class="adminTask__title">Editar tarea</h1>
+        <form class="adminTask__form">
+            <p>Identificador de la tarea {{item._id}}</p>
+            <input class="adminTask__form--input" type="text" v-model="item.title" placeholder="Titulo de la tarea">
+            <input class="adminTask__form--input" type="text" v-model="item.description"
                 placeholder="Descripcion de la tarea">
-            <input class="adminTask__form--input" type="text" v-model="task.tags" placeholder="Tags identificadores">
-            <button class="adminTask__form--btn">Guardar/Cerrar</button>
+            <input class="adminTask__form--input" type="text" v-model="item.tags" placeholder="Tags identificadores">
+            <button class="adminTask__form--btn" @click.prevent="saveChanges">Guardar/Cerrar</button>
         </form>
     </div>
 </template>
 <script>
     export default {
+        props: ['item'],
         data() {
             return {
                 task: {
@@ -22,15 +24,9 @@
             }
         },
         methods: {
-            async saveTask() {
-                this.task = {
-                    title: this.task.title,
-                    description: this.task.description,
-                    tags: this.task.tags
-                }
-                await this.$store.dispatch("tasks/registerTask", this.task);
-                location.reload()
-            },
+            saveChanges() {
+                this.$emit("click");
+            }
         }
     }
 </script>
@@ -60,11 +56,11 @@
             }
 
             &--btn {
-                margin-top: 6%;
-                width: 120px;
+                margin-top: 3%;
+                width: 150px;
                 height: 35px;
                 border-radius: 6px;
-                margin-left: 40%;
+                margin-left: 35%;
                 border: 0;
                 outline: none;
                 cursor: pointer;

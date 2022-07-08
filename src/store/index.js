@@ -7,12 +7,6 @@ import tasks from './modules/tasks'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
   modules: {
     login,
     register,

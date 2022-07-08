@@ -13,7 +13,7 @@
                 </div>
                 <div class="contentTasks__container--headerRight">
                     <div>
-                        <p>5/{{data.length}} tasks left</p>
+                        <p>{{count}}/{{data.length}} tasks left</p>
                         <progress id="file" max="100" value="70"></progress>
                     </div>
                     <div>
@@ -24,10 +24,13 @@
             <div class="contentTasks__container--line"></div>
             <section class="contentTasks__container--buttons">
                 <div class="contentTasks__container--btnShow" @click="showTasks">Show All Tasks</div>
+                <input class="contentTasks__container--search" v-model="search" v-if="show" type="text"
+                    placeholder="Search by title or word">
                 <div class="contentTasks__container--btnAdd" @click="getModal">+Add a Task</div>
             </section>
             <Modal class="contentTasks__container--modal" v-if="showModal" />
-            <div v-for="(item, index) in data" :key="index">
+            <ModalEdicion v-if="showModalEdit" :item="item" @click="saveChanges(item)" />
+            <div v-for="(item, index) in items" :key="index">
                 <div class="contentTasks__container--line" v-if="show"></div>
                 <section class="contentTasks__container--tasks" v-if="show" @click="showBtn">
                     <div class="task">
@@ -39,9 +42,9 @@
                     </div>
                 </section>
                 <div class="contentTasks__container--btns" v-if="showButtons">
-                    <button v-if="show">Editar</button>
-                    <button v-if="show" @click="done(index+1)">Realizada</button>
-                    <button v-if="show" @click="eliminar(index)">Eliminar</button>
+                    <button class="btn" v-if="show" @click="editTask(item)">Editar</button>
+                    <button class="btn" v-if="show" @click="done(index+1)">Realizada</button>
+                    <button class="btn" v-if="show" @click="eliminar(index)">Eliminar</button>
                 </div>
             </div>
         </div>
@@ -49,53 +52,80 @@
 </template>
 <script>
     import Modal from "../../components/AdminTasks.vue"
+    import ModalEdicion from "../../components/EditTask.vue"
     export default {
         components: {
-            Modal
+            Modal,
+            ModalEdicion
         },
         data() {
             return {
                 showButtons: false,
                 showModal: false,
                 showModalEditar: false,
+                showModalEdit: false,
+                count: 0,
                 show: false,
-                data: []
+                data: [],
+                item: {},
+                search: ''
             }
         },
-        methods: {
-            done(index) {
-                document.getElementById(index).style.opacity = "0.8"
-                document.getElementById(index).innerHTML = "✔️"
-                document.getElementById(index).style.background = "grey"
-                document.getElementById(index).style.paddingTop = "2px"
-                document.getElementById(index).style.paddingBottom = "3px"
+        computed: {
+            items() {
+                return this.data.filter(item => {
+                    return item.title.toLowerCase().includes(this.search.toLowerCase()) || item.description.toLowerCase().includes(this.search.toLowerCase());
+                });
             },
-            showTasks() {
-                this.show = !this.show
-
-            },
-            async getTasks() {
-                let response = await this.$store.dispatch("tasks/getTasks");
-                this.data = response
-            },
-            getModal() {
-                this.showModal = !this.showModal
-            },
-            showBtn() {
-                this.showButtons = !this.showButtons
-            },
-            async eliminar(index) {
-                const id = this.data[index]._id
-                console.log(id)
-                await this.$store.dispatch("tasks/deleteTask", id);
-                location.reload()
-
-            }
         },
-        created() {
-            this.getTasks()
+            methods: {
+                done(index) {
+                    document.getElementById(index).style.opacity = "0.8"
+                    document.getElementById(index).innerHTML = "✔️"
+                    document.getElementById(index).style.background = "grey"
+                    document.getElementById(index).style.paddingTop = "2px"
+                    document.getElementById(index).style.paddingBottom = "3px"
+                    this.count++
+                },
+                showTasks() {
+                    this.show = !this.show
+
+                },
+                async getTasks() {
+                    let response = await this.$store.dispatch("tasks/getTasks");
+                    this.data = response
+                },
+                getModal() {
+                    this.showModal = !this.showModal
+                },
+                showBtn() {
+                    this.showButtons = !this.showButtons
+                },
+                editTask(item) {
+                    this.showModalEdit = true
+                    this.item = item
+                },
+                async saveChanges(item) {
+                    const payload = {
+                        'id': item._id,
+                        'task': item
+                    }
+                    console.log(payload)
+                    await this.$store.dispatch("tasks/editarTask", payload);
+                    location.reload()
+                },
+                async eliminar(index) {
+                    const id = this.data[index]._id
+                    console.log(id)
+                    await this.$store.dispatch("tasks/deleteTask", id);
+                    location.reload()
+
+                }
+            },
+            created() {
+                this.getTasks()
+            }
         }
-    }
 </script>
 <style lang="scss">
     .contentTasks {
@@ -135,13 +165,14 @@
 
                 :nth-child(1) {
                     padding-top: 15px;
-                    :nth-child(1){
+
+                    :nth-child(1) {
                         margin-bottom: -2%;
                     }
 
                 }
 
-                :nth-child(2){
+                :nth-child(2) {
                     padding-top: 20px;
                     margin-left: -5%;
                 }
@@ -173,6 +204,16 @@
                 color: green;
                 cursor: pointer;
             }
+            &--search{
+                padding-left: 5px;
+                width: 250px;
+                border: 1px solid green;
+                outline: none;
+                border-radius: 6px;
+                &::placeholder{
+                    font-size: 16px;
+                }
+            }
 
             &--btnAdd {
                 padding: 1% 3.5%;
@@ -203,9 +244,12 @@
 
                     :nth-child(2) {
                         padding-top: 5px;
-                        &::first-letter{
+
+                        &::first-letter {
                             text-transform: capitalize
-                        };
+                        }
+
+                        ;
                     }
                 }
 
@@ -215,11 +259,17 @@
             }
 
             &--btns {
-                // margin-top: -4%;
                 margin-bottom: 1%;
                 display: flex;
                 justify-content: center;
                 gap: 10px;
+                .btn{
+                    border: 1px solid green;
+                    border-radius: 4px;
+                    width: 10%;
+                    height: 25px;
+                    font-size: 16px;
+                }
             }
         }
     }

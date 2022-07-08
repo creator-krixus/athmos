@@ -34,41 +34,48 @@
 <style lang="scss" scoped>
     .login {
         height: 80vh;
-
         &__form {
             width: 30%;
-            padding: 0 10%;
+            height: 40%;
+            padding: 3% 3% 0 3%;
             display: flex;
             flex-direction: column;
-            margin: 4%;
-            padding: 2%;
+            margin-top: 10%;
             opacity: 0.7;
             border: solid 1px rgba(189, 224, 236, 0.588);
             border-radius: 6px;
             text-align: center;
-
+            background: #084d6e;
+            margin-left: auto;
+            margin-right: auto;
+            
             &--data {
                 width: 100%;
                 height: 35px;
-                margin-bottom: 5%;
+                margin-bottom: 10%;
                 border-radius: 4px;
                 border: 0;
-                background: rgba(189, 224, 236, 0.588);
                 outline: none;
+                &::placeholder{
+                    color: black;
+                    font-size: 16px;
+                }
             }
 
             &--btn {
-                width: 25%;
-                margin-left: 40%;
-                background: red;
+                width: 40%;
+                margin-left: 32%;
+                background: rgba(189, 224, 236, 0.588);
                 border: none;
                 padding: 1.5%;
                 border-radius: 6px;
+                font-size: 20px;
+                color: black;
 
                 &:hover {
                     color: #fff;
                     cursor: pointer;
-                    transform: scale(1.1);
+                    
                 }
             }
         }
